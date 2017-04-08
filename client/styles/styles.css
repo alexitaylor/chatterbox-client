@@ -92,3 +92,8 @@ div {
     padding: 10px;
 }
 
+.hide {
+    display: none;
+    visibility: hidden;
+}
+
