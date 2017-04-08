@@ -34,12 +34,15 @@ App.prototype.fetch = function(cb) {
 
     $.ajax({
         // This is the url you should use to communicate with the parse API server.
-        url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+        url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages?order=-createdAt',
         type: 'GET',
+        // dataType: 'JSON',
         data: {},
         contentType: 'application/json',
         success: function(data) {
             cb(data);
+            console.log(data);
+            promise = data;
         },
 
         error: function(data) {
