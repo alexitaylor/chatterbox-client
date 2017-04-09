@@ -1,7 +1,7 @@
 // YOUR CODE HERE:
 var dataX = [];
 var App = function() {
-    this.server = 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages';
+    this.server = 'http://parse.sfm6.hackreactor.com/chatterbox/classes/';
     this.fetchedData = null;
 }
 
@@ -12,50 +12,43 @@ App.prototype.init = function() {
     $('body').on('click', '.chat-submit', function(){
         var message = {
             text: $('.chat-input').val(),
-            room: 'room',
+            roomname: $('.room-input').val(),
             username: ''
         }
         that.send(message);
     });
 
+    $('#USER').click(function(){
+        $('#USER').addClass("active");
+    })
+
     
     // get value of clicked item
+    // change is click for dropdown
     $('.rooms').change(function(){
         $('.hide').removeClass('hide');
+        // get value of the class for option (dropdown). first word only 
         var value = $(this).val().split(" ")[0];
         if (value === 'allrooms') {
             $('.hide').removeClass('hide');
         } else {
-            $(`.${value}`).addClass("hide");
+            // add class "hide" to everyone
+            $(`.room`).addClass("hide");
+            // remove class "hide" for the option being clicked
+            $(`.${value}`).removeClass("hide");
         }
 
-    });
-
-    // add class of .hide to all children of rooms
-    // remove class on clicked item
-
-
-    $('.rooms').on('click', '.chat-submit', function(){
-        var message = {
-            text: $('.chat-input').val(),
-            room: 'room',
-            username: ''
-        }
-        that.send(message);
     });
 
     this.fetch(this.saveRooms);
-
-    // $('.rooms').append(`<option>${room}</option>`)    
-
     this.fetch(this.renderMessage);
-    //this.fetch(this.saveRooms);
 };
+
 
 App.prototype.send = function(message) {
     $.ajax({
         // This is the url you should use to communicate with the parse API server.
-        url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages',
+        url: `${this.server}messages`,
         type: 'POST',
         data: JSON.stringify(message),
         contentType: 'application/json',
@@ -75,15 +68,16 @@ App.prototype.fetch = function(callback) {
 
     $.ajax({
         // This is the url you should use to communicate with the parse API server.
-        url: 'http://parse.sfm6.hackreactor.com/chatterbox/classes/messages?order=-createdAt',
+        url: `${this.server}messages?order=-createdAt`,
         type: 'GET',
         // dataType: 'JSON',
         data: {},
         contentType: 'application/json',
         success: function(data) {
-            dataX.push(data);
             callback(data);
-            //console.log(data);
+            for (var i=0; i<data.results.length; i++) {    
+              dataX.push(data.results[i]);
+            }
         },
 
         error: function(data) {
@@ -100,11 +94,11 @@ App.prototype.filter = function(message){
     if (message === undefined) {
         return '';
     }
+    if (message === 'debgguer') {
+        return '';
+    }
     return message.replace(/([<>()[{*+.$^\\|?])/g, '\\$1');
 }
-
-//console.log(output);
-
 
 App.prototype.clearMessages = function() {
     $('#chats').empty();
@@ -112,17 +106,18 @@ App.prototype.clearMessages = function() {
 
 
 App.prototype.renderMessage = function(message) {
-// $('#chats').append("<div>" + message + "</div>");
 console.log(message)
     for (var i = 0; i < message.results.length; i++) {
         var chat = message.results[i];
         var time = moment(chat.createdAt);
         var filteredText = app.filter(chat.text);
+        var filteredUserName = app.filter(chat.username);
+        var filteredRoomname = app.filter(chat.roomname);
         $('#chats').append(`
-            <div class="${chat.roomname}">
-                <p>${chat.username}</p>
+            <div class="${chat.roomname} room">
                 <p>${filteredText}</p>
-                <p>${time.fromNow()}</p>
+                <p class="${chat.username} username">${filteredUserName}  <small>${time.fromNow()}</small></p>
+                <p></p>
             </div>`);
     }
 };
@@ -137,7 +132,9 @@ App.prototype.saveRooms = function(data) {
   });
   
   for (var key in rooms) {
-    $('.rooms').append(`<option class="${key}">${rooms[key]}</option>`); 
+ 
+        $('.rooms').append(`<option class="${key}">${rooms[key]}</option>`); 
+
   }
 
    
@@ -146,51 +143,3 @@ App.prototype.saveRooms = function(data) {
 
 var app = new App();
 app.init();
-
-
-console.log(dataX);
-// var cb = function(message){
-//     console.log(message);
-//     //app.renderMessage(message);
-// }
-
-
-
-// var result = app.saveRooms([{
-//   username: 'shawndrost',
-//   text: 'trololo',
-//   roomname: '4chan'
-// }, {
-//   username: 'sharkesforcheap',
-//   text: 'trolls',
-//   roomname: '4chan'
-// }])
-
-// console.log(result)
-// app.fetch(app.renderMessage);
-// console.log(app.fetchedData)
-
-
-
-// var promise = app.fetch();
-// promise.done(function(data){
-// 	output = data;
-// 	console.log(data);
-// })
-
-
-// console.log(promise);
-
-
-// Promise.all([promise]).then(values => {
-// 	console.log(values);
-// });
-
-// var makeRequest = async () => {
-// 		console.log(await app.fetch());
-// };
-
-// console.log(makeRequest());
-
-
-console.log('hi Im here')
